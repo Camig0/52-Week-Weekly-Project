@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+
+    <!-- styles -->
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="project-wrapper">
+      <div class="todo-list">
+        <!-- LISTS BY DEFAULT SHOWS EMPTY LIST -->
+        <div class="lists">
+          <button
+            type="button"
+            class="arrow"
+            id="arrow-left"
+            onclick="moveToNewList(-1)"
+          >
+            <
+          </button>
+          <span id="list_title_wrapper">
+            <h1 class="list-title" id="list_title">List Title</h1>
+
+            <!-- <input
+              type="text"
+              class="list-title-input"
+              id="list_title_input"
+              placeholder="Enter new list name"
+              maxlength="30"
+            /> -->
+          </span>
+          <button
+            type="button"
+            class="arrow"
+            id="arrow-left"
+            onclick="moveToNewList(1)"
+          >
+            >
+          </button>
+        </div>
+        <!-- Labels for each item info -->
+        <div class="labels">
+          <span class="label" style="flex-grow: 3">Task</span>
+          <span class="label">Date</span>
+          <span class="label">Time</span>
+        </div>
+        <div class="list" id="todo_list">
+          <!-- Actual list of todos -->
+          <div class="item done">
+            <div class="item-info">
+              <span class="text_task"
+                >Baseplaasasdsdsdsdsdsdsdsdte Task dyddsdsdsdsdsdsdone</span
+              >
+              <span class="date">December 7, 2025</span>
+              <span class="time">12:31PM</span>
+            </div>
+          </div>
+
+          <!-- Item format for where JS should inject -->
+          <!-- <div class="item" id="new_item">
+              <div class="item-info">
+                <input
+                  class="text field"
+                  type="text"
+                  placeholder="Add a new task"
+                />
+                <input class="date field" type="date" />
+                <input class="time field" type="time" />
+              </div>
+
+              <div class="item-actions">
+                <button type="button" class="delete-item field">X</button>
+              </div>
+            </div> -->
+          <!-- Button to add new items -->
+          <div class="add-item item" id="add_item">
+            <button type="button" onclick="add_item()">+</button>
+          </div>
+        </div>
+        <div class="functional-buttons">
+          <button
+            type="button"
+            class="save-form functional_button"
+            id="formSaveBtn"
+            title="Save the current list"
+            onclick="save_list()"
+          >
+            <img src="assets/save.svg" alt="" />
+          </button>
+          <button
+            type="button"
+            class="del-form functional_button"
+            id="formDelBtn"
+            title="Delete the current list"
+            onclick="delList()"
+          >
+            <img src="assets/delete.svg" alt="" />
+          </button>
+          <button
+            type="button"
+            class="new-form functional_button"
+            id="newFormBtn"
+            title="create a new list"
+            onclick="save_list(); new_list()"
+          >
+            <img src="assets/new.svg" alt="" />
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script src="main.js"></script>
+  </body>
+</html>
