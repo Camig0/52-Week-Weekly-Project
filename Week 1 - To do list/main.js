@@ -149,7 +149,8 @@ function add_confirmed_task(text, date, time, id) {
     if (
       item.classList.contains("done") ||
       item.id === "editItem" ||
-      document.getElementById("new_item")
+      document.getElementById("new_item") ||
+      document.getElementById("editItem")
     ) {
       console.log("we returned here");
       return;
