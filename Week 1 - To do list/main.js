@@ -3,14 +3,16 @@ const form = document.getElementById("todo_list");
 // Template text: "lroem", date: d/m/y", time: "hr:mnAM/PM"
 let todo_items = {};
 let current_list = null;
+let itemIDLogger = localStorage.getItem("itemIDLogger") || 0;
 
 // + button at the bottom of the list functionality
 function add_item() {
-  const list_id = [...document.querySelectorAll(".item.confirmed")].length;
+  const list_id = itemIDLogger++;
+  localStorage.setItem("itemIDLogger", itemIDLogger);
   console.log("lets just see", list_id);
 
   if (document.querySelector("#editItem")) {
-    // prevents adding new item while editing... idk why i felt to add this but i just think its safer
+    // prevents adding new item while editing... idk why i felt to  add this but i just think its safer
     alert("Can not make new item while editing another");
     return;
   }
@@ -98,6 +100,7 @@ function confirm_item(id) {
       date: date,
       time: time, //I wanna format it ahead but like nahhhhhhhh
       classList: item.classList,
+      id: id,
     },
   });
   console.log("some weird shit happens here too", id);
@@ -157,6 +160,8 @@ function add_confirmed_task(text, date, time, id) {
     }
 
     const oldID = item.id;
+    const untouched = item.id;
+    console.log("NOTICE HEREE SENPAIIIII:", item.id);
     item.id = "editItem";
     console.log("dblcik");
     console.log(item.id);
@@ -225,8 +230,9 @@ function add_confirmed_task(text, date, time, id) {
     item_delete.addEventListener("click", function () {
       item.remove();
       delete todo_items[oldID];
-      console.log(todo_items[oldID]); // some weird shit happens here with oldID for some reason it becomes item_item_x
+      console.log("NOTICE ME SENPAIIIIIIIIIIIIIIIIIIIII", todo_items[oldID]); // some weird shit happens here with oldID for some reason it becomes item_item_x
       console.log(oldID); // I ran it again and it somehow fixed itself. This feels very engineery ;)
+      console.log(untouched);
       save_list();
     });
 
@@ -246,6 +252,7 @@ function add_confirmed_task(text, date, time, id) {
               date: date,
               time: time, //I wanna format it ahead but like nahhhhhhhh
               classList: item.classList,
+              id: oldID.split("_")[1], //Just the number
             },
           });
           console.log(oldID);
@@ -329,6 +336,7 @@ function titleINP_init() {
 
       current_list = new_title || "Untitled List";
       todo_items = {}; // reset todo_items for the new list
+      save_list();
     }
   });
 }
@@ -363,6 +371,7 @@ function save_list() {
 function new_list() {
   const wrapper = document.getElementById("list_title_wrapper");
   const newTitleInp = document.createElement("input");
+
   current_list = null;
   newTitleInp.id = "list_title_input";
   newTitleInp.className = "list-title-input";
@@ -382,6 +391,7 @@ function new_list() {
 function load_list(list_name) {
   const list = JSON.parse(localStorage.getItem("todo_lists"))[list_name];
   const list_title = document.getElementById("list_title");
+
   current_list = list_name || "Untitled List";
   if (!list) {
     console.error("List not found in localStorage.");
@@ -399,7 +409,7 @@ function load_list(list_name) {
   itemIds = Object.keys(list);
   for (let i = 0; i < itemIds.length; i++) {
     const item = list[itemIds[i]];
-    add_confirmed_task(item.text, item.date, item.time, itemIds[i]);
+    add_confirmed_task(item.text, item.date, item.time, item.id);
     todo_items[`item_${i}`] = {
       text: item.text,
       date: item.date,
@@ -458,6 +468,10 @@ if (localStorage.getItem("lastListOpened")) {
   load_list(localStorage.getItem("lastListOpened"));
 } else {
   new_list(); // create a new list if no last opened list
+}
+
+if (!localStorage.getItem("itemIDLogger")) {
+  localStorage.setItem("itemIDLogger", itemIDLogger);
 }
 
 titleINP_init();
