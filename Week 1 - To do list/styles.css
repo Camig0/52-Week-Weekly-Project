@@ -88,18 +88,7 @@ button {
   text-decoration: line-through;
   color: #aaa;
 }
-.done:hover {
-  text-decoration: none;
-  color: #333;
-  font-size: large;
-  cursor: pointer;
-}
-.pending:hover {
-  text-decoration: line-through;
-  color: #aaa;
-  font-size: large;
-  cursor: pointer;
-}
+
 .field {
   border: solid 1px #ccc;
 }

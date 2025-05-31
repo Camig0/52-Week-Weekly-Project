@@ -7,7 +7,13 @@ let current_list = null;
 // + button at the bottom of the list functionality
 function add_item() {
   const list_id = [...document.querySelectorAll(".item.confirmed")].length;
+  console.log("lets just see", list_id);
 
+  if (document.querySelector("#editItem")) {
+    // prevents adding new item while editing... idk why i felt to add this but i just think its safer
+    alert("Can not make new item while editing another");
+    return;
+  }
   if (!current_list) {
     alert("Please enter a list title before adding items.");
     return;
@@ -61,7 +67,7 @@ function add_item() {
     item.remove();
   });
 
-  // adds event listener for when to save and stuff
+  // adds event listener for when to save and stuff P.S. I had to GPT thislol
   form.querySelectorAll("input, textarea, select").forEach((field) => {
     field.addEventListener("keydown", function (event) {
       if (event.key === "Enter") {
@@ -85,14 +91,16 @@ function confirm_item(id) {
   const date = task_date.value.trim();
   const time = task_time.value.trim();
   console.log("Text:", text, "Date:", date, "Time:", time);
-  add_confirmed_task(text, date, time, id);
+  const item = add_confirmed_task(text, date, time, id);
   Object.assign(todo_items, {
     [`item_${id}`]: {
       text: text,
       date: date,
       time: time, //I wanna format it ahead but like nahhhhhhhh
+      classList: item.classList,
     },
   });
+  console.log("some weird shit happens here too", id);
   console.log("Todo items:", todo_items);
   // do autosave here TODO
 }
@@ -111,6 +119,7 @@ function add_confirmed_task(text, date, time, id) {
 
   item.className = "item confirmed pending";
   item.id = `item_${id}`;
+  console.log("some weird shit happens here", id);
   item_info.className = "item-info";
   text_task.className = "text_task";
   date_task.className = "date";
@@ -135,6 +144,166 @@ function add_confirmed_task(text, date, time, id) {
   todo_list.insertBefore(item, addBtn);
 
   // add event listeners here TODO
+
+  item.addEventListener("dblclick", function () {
+    if (
+      item.classList.contains("done") ||
+      item.id === "editItem" ||
+      document.getElementById("new_item")
+    ) {
+      console.log("we returned here");
+      return;
+    }
+
+    const oldID = item.id;
+    item.id = "editItem";
+    console.log("dblcik");
+    console.log(item.id);
+
+    //very inelegant code but i could not give a fuck its javascript
+
+    const text = item_info.querySelector(".text_task").innerHTML;
+    const date = item_info.querySelector(".date").innerHTML;
+    const time = item_info.querySelector(".time").innerHTML;
+
+    console.log("unformatted: ", text, date, time);
+
+    const formatted_date = new Date(`${date} ${time}`);
+
+    function pad(n) {
+      // helper function to turn 6 to 06, for example.
+      return n.toString().padStart(2, "0");
+    }
+
+    const formattedDate = `${formatted_date.getFullYear()}-${pad(
+      formatted_date.getMonth() + 1
+    )}-${pad(formatted_date.getDate())}`;
+    const formattedTime = `${pad(formatted_date.getHours())}:${pad(
+      formatted_date.getMinutes()
+    )}`;
+
+    item_info.querySelectorAll(".text_task, .date, .time").forEach((item) => {
+      item.remove();
+    });
+
+    const item_actions = document.createElement("div");
+    const item_text = document.createElement("input");
+    const item_date = document.createElement("input");
+    const item_delete = document.createElement("button");
+    const item_time = document.createElement("input");
+
+    item_actions.className = "item-actions";
+    item_text.className = "text field";
+    item_text.type = "text";
+    item_text.placeholder = "Edit task";
+    item_date.className = "date field";
+    item_date.type = "date";
+    item_time.className = "time field";
+    item_time.type = "time";
+    item_delete.type = "button";
+    item_delete.innerHTML = "X";
+
+    item_text.id = "item_text";
+    item_date.id = "item_date";
+    item_time.id = "item_time";
+    item_delete.id = "item_delete";
+
+    item_text.value = text;
+    item_date.value = formattedDate;
+    item_time.value = formattedTime;
+
+    console.log("formatted:", text, formattedDate, formattedTime);
+
+    item_info.append(item_text, item_date, item_time);
+    item_actions.appendChild(item_delete);
+
+    item.append(item_actions);
+
+    // Event listeners for the editing item
+    // add event listener for delete button
+    item_delete.addEventListener("click", function () {
+      item.remove();
+      delete todo_items[oldID];
+      console.log(todo_items[oldID]); // some weird shit happens here with oldID for some reason it becomes item_item_x
+      console.log(oldID); // I ran it again and it somehow fixed itself. This feels very engineery ;)
+      save_list();
+    });
+
+    // adds event listener for when to save and stuff P.S. I had to GPT thislol
+    form.querySelectorAll("input, textarea, select").forEach((field) => {
+      field.addEventListener("keydown", function (event) {
+        if (event.key === "Enter") {
+          let itemInList = todo_items[oldID];
+
+          const text = item_text.value.trim();
+          const date = item_date.value.trim();
+          const time = item_time.value.trim();
+
+          Object.assign(todo_items, {
+            [oldID]: {
+              text: text,
+              date: date,
+              time: time, //I wanna format it ahead but like nahhhhhhhh
+              classList: item.classList,
+            },
+          });
+          console.log(oldID);
+
+          item.removeChild(item_actions);
+          item_info.removeChild(item_text);
+          item_info.removeChild(item_time);
+          item_info.removeChild(item_date);
+
+          const text_task = document.createElement("span");
+          const date_task = document.createElement("span");
+          const time_task = document.createElement("span");
+
+          text_task.className = "text_task";
+          date_task.className = "date";
+          time_task.className = "time";
+
+          const formatted_date = new Date(`${date}T${time}`);
+
+          const formattedDate = formatted_date.toLocaleDateString();
+          const formattedTime = formatted_date.toLocaleTimeString("en-US", {
+            hour: "2-digit",
+            minute: "2-digit",
+            hour12: true,
+          });
+
+          text_task.textContent = text;
+          date_task.textContent = formattedDate;
+          time_task.textContent = formattedTime;
+          item_info.append(text_task, date_task, time_task);
+          item.id = oldID;
+          console.log("we exit now");
+        }
+      });
+    });
+  });
+
+  item.addEventListener("click", function () {
+    let classList = item.classList;
+    if (item.id === "editItem") {
+      // just make sures that when item is dbclick it is styled correctly
+      classList.remove("done");
+      classList.add("pending");
+      return;
+    }
+    if (classList.contains("pending")) {
+      classList.remove("pending");
+      classList.add("done");
+      console.log(classList);
+      return;
+    }
+
+    if (classList.contains("done")) {
+      classList.remove("done");
+      classList.add("pending");
+      return;
+    }
+  });
+  return item;
 }
 
 // adds event listener for when to save and stuff
@@ -166,6 +335,12 @@ function titleINP_init() {
 //  save button functionality
 function save_list() {
   // saves using the todo_items object
+  if (document.querySelector("#editItem")) {
+    //prevents from saving while editing an item
+    alert("Can not save list while editing item");
+    return;
+  }
+
   let lists = localStorage.getItem("todo_lists");
   if (!current_list) {
     alert("Please enter a list title before saving.");
