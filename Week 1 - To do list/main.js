@@ -9,7 +9,6 @@ let itemIDLogger = localStorage.getItem("itemIDLogger") || 0;
 function add_item() {
   const list_id = itemIDLogger++;
   localStorage.setItem("itemIDLogger", itemIDLogger);
-  console.log("lets just see", list_id);
 
   if (document.querySelector("#editItem")) {
     // prevents adding new item while editing... idk why i felt to  add this but i just think its safer
@@ -62,7 +61,6 @@ function add_item() {
 
   item.append(item_info, item_actions);
   todo_list.insertBefore(item, addBtn);
-  console.log(item);
 
   // add event listener for delete button
   item_delete.addEventListener("click", function () {
@@ -80,7 +78,6 @@ function add_item() {
 }
 
 function confirm_item(id) {
-  console.log("Confirming item...");
   const task_text = document.getElementById("item_text");
   const task_date = document.getElementById("item_date");
   const task_time = document.getElementById("item_time");
@@ -92,7 +89,6 @@ function confirm_item(id) {
   const text = task_text.value.trim();
   const date = task_date.value.trim();
   const time = task_time.value.trim();
-  console.log("Text:", text, "Date:", date, "Time:", time);
   const item = add_confirmed_task(text, date, time, id);
   Object.assign(todo_items, {
     [`item_${id}`]: {
@@ -103,8 +99,6 @@ function confirm_item(id) {
       id: id,
     },
   });
-  console.log("some weird shit happens here too", id);
-  console.log("Todo items:", todo_items);
   // do autosave here TODO
 }
 
@@ -122,7 +116,6 @@ function add_confirmed_task(text, date, time, id) {
 
   item.className = "item confirmed pending";
   item.id = `item_${id}`;
-  console.log("some weird shit happens here", id);
   item_info.className = "item-info";
   text_task.className = "text_task";
   date_task.className = "date";
@@ -155,24 +148,18 @@ function add_confirmed_task(text, date, time, id) {
       document.getElementById("new_item") ||
       document.getElementById("editItem")
     ) {
-      console.log("we returned here");
       return;
     }
 
     const oldID = item.id;
     const untouched = item.id;
-    console.log("NOTICE HEREE SENPAIIIII:", item.id);
     item.id = "editItem";
-    console.log("dblcik");
-    console.log(item.id);
 
     //very inelegant code but i could not give a fuck its javascript
 
     const text = item_info.querySelector(".text_task").innerHTML;
     const date = item_info.querySelector(".date").innerHTML;
     const time = item_info.querySelector(".time").innerHTML;
-
-    console.log("unformatted: ", text, date, time);
 
     const formatted_date = new Date(`${date} ${time}`);
 
@@ -218,8 +205,6 @@ function add_confirmed_task(text, date, time, id) {
     item_date.value = formattedDate;
     item_time.value = formattedTime;
 
-    console.log("formatted:", text, formattedDate, formattedTime);
-
     item_info.append(item_text, item_date, item_time);
     item_actions.appendChild(item_delete);
 
@@ -230,9 +215,6 @@ function add_confirmed_task(text, date, time, id) {
     item_delete.addEventListener("click", function () {
       item.remove();
       delete todo_items[oldID];
-      console.log("NOTICE ME SENPAIIIIIIIIIIIIIIIIIIIII", todo_items[oldID]); // some weird shit happens here with oldID for some reason it becomes item_item_x
-      console.log(oldID); // I ran it again and it somehow fixed itself. This feels very engineery ;)
-      console.log(untouched);
       save_list();
     });
 
@@ -255,7 +237,6 @@ function add_confirmed_task(text, date, time, id) {
               id: oldID.split("_")[1], //Just the number
             },
           });
-          console.log(oldID);
 
           item.removeChild(item_actions);
           item_info.removeChild(item_text);
@@ -284,7 +265,6 @@ function add_confirmed_task(text, date, time, id) {
           time_task.textContent = formattedTime;
           item_info.append(text_task, date_task, time_task);
           item.id = oldID;
-          console.log("we exit now");
         }
       });
     });
@@ -301,7 +281,6 @@ function add_confirmed_task(text, date, time, id) {
     if (classList.contains("pending")) {
       classList.remove("pending");
       classList.add("done");
-      console.log(classList);
       return;
     }
 
@@ -363,7 +342,6 @@ function save_list() {
   lists[current_list] = todo_items;
   localStorage.setItem("todo_lists", JSON.stringify(lists));
 
-  console.log(localStorage.getItem("todo_lists"));
   localStorage.setItem("lastListOpened", current_list);
 }
 
@@ -421,15 +399,12 @@ function load_list(list_name) {
 
 // functionalit for the left and right arrows to move between lists
 function moveToNewList(step) {
-  console.log("Moving to new list with step:", step);
-
   const lists = JSON.parse(localStorage.getItem("todo_lists")) || {};
   const listNames = Object.keys(lists);
   const currentIndex = listNames.indexOf(current_list);
 
   if (currentIndex === -1) {
     console.error("Current list not found in localStorage.");
-    console.log(currentIndex);
     return false;
   }
 
