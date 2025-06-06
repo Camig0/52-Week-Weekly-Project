@@ -215,7 +215,6 @@ function add_confirmed_task(text, date, time, id) {
     // add event listener for delete button
     item_delete.addEventListener("click", function () {
       item.remove();
-      console.log(oldID);
       delete todo_items[oldID];
       save_list();
     });
@@ -392,7 +391,6 @@ function load_list(list_name) {
 
   itemIds = Object.keys(todo_list);
 
-  console.log(`item ids: ${itemIds}\n list: ${JSON.stringify(todo_list)} `);
   for (let i = 0; i < itemIds.length; i++) {
     const item = todo_list[itemIds[i]];
     const DOMItem = add_confirmed_task(
@@ -401,7 +399,6 @@ function load_list(list_name) {
       item.time,
       item.id
     );
-    console.log(item);
     todo_items[`item_${item.id}`] = {
       text: item.text,
       date: item.date,
@@ -434,9 +431,6 @@ function moveToNewList(step) {
     console.warn("No more lists in that direction.");
     return false;
   }
-  console.log(listNames);
-  console.log(lists);
-  console.log(currentIndex);
   load_list(listNames[newIndex]);
   return true;
 }
