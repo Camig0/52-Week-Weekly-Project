@@ -95,7 +95,7 @@ function confirm_item(id) {
       text: text,
       date: date,
       time: time, //I wanna format it ahead but like nahhhhhhhh
-      classList: item.classList,
+      classList: item.className,
       id: id,
     },
   });
@@ -115,6 +115,7 @@ function add_confirmed_task(text, date, time, id) {
   const new_item = document.getElementById("new_item");
 
   item.className = "item confirmed pending";
+
   item.id = `item_${id}`;
   item_info.className = "item-info";
   text_task.className = "text_task";
@@ -151,7 +152,7 @@ function add_confirmed_task(text, date, time, id) {
       return;
     }
 
-    const oldID = item.id;
+    const oldID = item.id; // refers to the id in HTML
     const untouched = item.id;
     item.id = "editItem";
 
@@ -214,6 +215,7 @@ function add_confirmed_task(text, date, time, id) {
     // add event listener for delete button
     item_delete.addEventListener("click", function () {
       item.remove();
+      console.log(oldID);
       delete todo_items[oldID];
       save_list();
     });
@@ -222,8 +224,6 @@ function add_confirmed_task(text, date, time, id) {
     form.querySelectorAll("input, textarea, select").forEach((field) => {
       field.addEventListener("keydown", function (event) {
         if (event.key === "Enter") {
-          let itemInList = todo_items[oldID];
-
           const text = item_text.value.trim();
           const date = item_date.value.trim();
           const time = item_time.value.trim();
@@ -233,7 +233,7 @@ function add_confirmed_task(text, date, time, id) {
               text: text,
               date: date,
               time: time, //I wanna format it ahead but like nahhhhhhhh
-              classList: item.classList,
+              classList: item.className,
               id: oldID.split("_")[1], //Just the number
             },
           });
@@ -272,21 +272,26 @@ function add_confirmed_task(text, date, time, id) {
 
   item.addEventListener("click", function () {
     let classList = item.classList;
+    let itemInList = todo_items[item.id];
+
     if (item.id === "editItem") {
       // just make sures that when item is dbclick it is styled correctly
       classList.remove("done");
       classList.add("pending");
+      itemInList.classList = item.className;
       return;
     }
     if (classList.contains("pending")) {
       classList.remove("pending");
       classList.add("done");
+      itemInList.classList = item.className;
       return;
     }
 
     if (classList.contains("done")) {
       classList.remove("done");
       classList.add("pending");
+      itemInList.classList = item.className;
       return;
     }
   });
@@ -367,11 +372,12 @@ function new_list() {
 }
 
 function load_list(list_name) {
-  const list = JSON.parse(localStorage.getItem("todo_lists"))[list_name];
+  const todo_list = JSON.parse(localStorage.getItem("todo_lists"))[list_name];
   const list_title = document.getElementById("list_title");
+  todo_items = {};
 
   current_list = list_name || "Untitled List";
-  if (!list) {
+  if (!todo_list) {
     console.error("List not found in localStorage.");
     new_list();
     current_list = null;
@@ -384,15 +390,27 @@ function load_list(list_name) {
     item.remove();
   });
 
-  itemIds = Object.keys(list);
+  itemIds = Object.keys(todo_list);
+
+  console.log(`item ids: ${itemIds}\n list: ${JSON.stringify(todo_list)} `);
   for (let i = 0; i < itemIds.length; i++) {
-    const item = list[itemIds[i]];
-    add_confirmed_task(item.text, item.date, item.time, item.id);
-    todo_items[`item_${i}`] = {
+    const item = todo_list[itemIds[i]];
+    const DOMItem = add_confirmed_task(
+      item.text,
+      item.date,
+      item.time,
+      item.id
+    );
+    console.log(item);
+    todo_items[`item_${item.id}`] = {
       text: item.text,
       date: item.date,
       time: item.time,
+      classList: item.classList, // item refers to the item in todo_items
+      id: item.id,
     };
+
+    DOMItem.className = item.classList;
   }
   if (list_name) localStorage.setItem("lastListOpened", current_list);
 }
@@ -402,6 +420,8 @@ function moveToNewList(step) {
   const lists = JSON.parse(localStorage.getItem("todo_lists")) || {};
   const listNames = Object.keys(lists);
   const currentIndex = listNames.indexOf(current_list);
+
+  save_list(); //save before moving
 
   if (currentIndex === -1) {
     console.error("Current list not found in localStorage.");
@@ -414,7 +434,9 @@ function moveToNewList(step) {
     console.warn("No more lists in that direction.");
     return false;
   }
-
+  console.log(listNames);
+  console.log(lists);
+  console.log(currentIndex);
   load_list(listNames[newIndex]);
   return true;
 }
